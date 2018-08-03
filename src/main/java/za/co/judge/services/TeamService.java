@@ -1,7 +1,6 @@
 package za.co.judge.services;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +12,7 @@ import za.co.judge.repositories.TeamRepository;
 
 import java.security.Key;
 import java.util.Collection;
-import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TeamService {
@@ -22,19 +21,13 @@ public class TeamService {
     @Value("${signingKey}")
     private String signingKey;
 
-    public Team getTeam(String name) {
-        za.co.judge.domain.Team team = teamRepository.findTeamByName(name);
-        List<Member> teamMembers = (List<Member>) teamRepository.getTeamMembers(name);
-        team.setTeamMembers(teamMembers);
-        return team;
+    public Optional<Team> getTeam(String name) {
+        Long teamId = teamRepository.findTeamByName(name);
+        return teamRepository.findById(teamId, 2);
     }
 
     public Collection<Member> getTeamMembers(String name) {
         return teamRepository.getTeamMembers(name);
-    }
-
-    public Collection<Submission> getSubmissions(String name) {
-        return teamRepository.getSubmissionsForTeam(name);
     }
 
     public Team save(Team team) {
@@ -51,5 +44,10 @@ public class TeamService {
         String jwt = Jwts.builder().setSubject(resolvedTeam.getName()).signWith(key).compact();
         assert Jwts.parser().setSigningKey(key).parseClaimsJws(jwt).getBody().getSubject().equals(resolvedTeam.getName());
         return jwt;
+    }
+
+    public Team registerSubmission(Team team, Submission submission) {
+        team.getSubmissions().add(submission);
+        return teamRepository.save(team);
     }
 }

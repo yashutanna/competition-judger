@@ -19,7 +19,7 @@ public class QuestionService {
     }
 
     public List<Question> getAllQuestions() {
-        return (List<Question>) questionRepository.findAll();
+        return (List<Question>) questionRepository.findAll(1);
     }
 
     public Question getQuestion(String name) {
