@@ -1,5 +1,6 @@
 package za.co.judge.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
@@ -11,6 +12,7 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 @Data
 public class BaseEntity {
     @Id
+    @JsonIgnore
     @GeneratedValue
     private Long id;
 

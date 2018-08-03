@@ -1,5 +1,6 @@
 package za.co.judge.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -13,6 +14,8 @@ public class Team extends BaseEntity {
 
     private String name;
     private String university;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Relationship(type = "SUBMITTED")
