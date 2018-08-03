@@ -13,7 +13,7 @@ public class BaseEntity {
     @Id
     @GeneratedValue
     private Long id;
-    
+
     public String toString() {
         try {
             return Jackson2ObjectMapperBuilder.json().build().writeValueAsString(this);
