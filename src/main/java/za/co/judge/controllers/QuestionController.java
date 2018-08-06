@@ -74,6 +74,12 @@ public class QuestionController {
         Submission submission = submissionService.getSubmissionBykey(submissionId);
         copyProperties(submission, submissionResponse);
 
+        Boolean submissionAlreadyPassedTests = submission.getSuccessful();
+        if(submissionAlreadyPassedTests){
+            submissionResponse.setMessage("You have already successfully passed this question - new attempts are not saved. please continue with the next question");
+            return submissionResponse;
+        }
+
         Boolean submissionExpired = submissionService.submissionExpired(submission, submissionTime);
 
         if(submissionExpired){
