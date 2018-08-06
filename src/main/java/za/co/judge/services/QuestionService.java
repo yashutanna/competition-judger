@@ -11,6 +11,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +33,7 @@ public class QuestionService {
     }
 
     public List<Test> getQuestionTestSet(String name, int limit) {
-        return questionRepository.getTestSet(name, limit).stream().peek(test -> test.setOutput(null)).collect(Collectors.toList());
+        return new ArrayList<>(questionRepository.getTestSet(name, limit));
     }
 
     public Question save(Question question) {

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import za.co.judge.domain.Question;
 import za.co.judge.domain.Submission;
 import za.co.judge.domain.Team;
@@ -13,10 +14,14 @@ import za.co.judge.services.SubmissionService;
 import za.co.judge.services.TeamService;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.io.*;
 import java.security.Principal;
+import java.sql.Date;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Scanner;
 
 @RestController
 @RequestMapping("/questions")
@@ -67,6 +72,21 @@ public class QuestionController {
         Submission submission = initializeSubmissionForQuestion(questionName, team.get(), 10);
         questionService.getTestSetFileForSubmission(submission, response.getOutputStream());
         response.flushBuffer();
+    }
+
+    @PostMapping(value = "/submit")
+    public Boolean upload(@RequestParam("file") MultipartFile file, Principal principal) throws IOException {
+        Long submissionTime = Date.from(Instant.now()).getTime();
+        String submissionId;
+        try(Scanner fileReader = new Scanner(file.getInputStream())) {
+            submissionId = fileReader.nextLine();
+        }
+        Submission submission = submissionService.getSubmissionBykey(submissionId);
+        Boolean submissionExpired = submissionService.submissionExpired(submission, submissionTime);
+        HashMap<String, String> userSubmission = submissionService.getSubmittedTest(file);
+        Boolean linkedToTeam = submissionService.submissionLinkedToTeam(submission, principal.getName());
+        Boolean answersAreCorrect = submissionService.answersAreCorrect(submission, userSubmission);
+        return !submissionExpired && linkedToTeam && answersAreCorrect;
     }
 
     private Submission initializeSubmissionForQuestion(String name, Team team, int setSize) {
