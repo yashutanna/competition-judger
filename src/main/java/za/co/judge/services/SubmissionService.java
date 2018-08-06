@@ -55,9 +55,8 @@ public class SubmissionService {
 
         Boolean linkedToTeam = submissionLinkedToTeam(submission, teamName);
         if(!linkedToTeam){
-            submissionResponse.setMessage("This test set is not linked to your team. this has been recorded");
             //TODO add log here of possibly malicious behaviour
-            return submissionResponse;
+            return new SubmissionResponse("This test set is not linked to your team. this has been recorded");
         }
 
         Boolean submissionAlreadyPassedTests = submission.getSuccessful();
