@@ -13,3 +13,5 @@ buildNumber.properties
 
 .**
 gs-spring-boot.iml
+
+*.iml
