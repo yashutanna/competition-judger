@@ -40,7 +40,7 @@ public class TeamController {
 
     @GetMapping("/{name}/submissions")
     public ResponseEntity<List<Optional<Submission>>> getTeamSubmissions(@PathVariable("name") String name){
-        return new ResponseEntity<>(submissionService.getSubmissionsForTeam(name), HttpStatus.OK);
+        return new ResponseEntity<>(submissionService.getAttemptedSubmissionsForTeam(name), HttpStatus.OK);
     }
     
 }

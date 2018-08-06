@@ -1,6 +1,8 @@
 package za.co.judge.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
@@ -9,6 +11,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NodeEntity
 public class Submission extends BaseEntity {
@@ -23,6 +26,7 @@ public class Submission extends BaseEntity {
     private Question question;
 
     @Relationship(type = "TESTED_BY")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<Test> testSet;
 
     public Submission() {

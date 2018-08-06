@@ -5,10 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import za.co.judge.domain.Question;
-import za.co.judge.domain.Submission;
-import za.co.judge.domain.Team;
-import za.co.judge.domain.Test;
+import za.co.judge.domain.*;
 import za.co.judge.services.QuestionService;
 import za.co.judge.services.SubmissionService;
 import za.co.judge.services.TeamService;
@@ -22,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
+
+import static org.springframework.beans.BeanUtils.copyProperties;
 
 @RestController
 @RequestMapping("/questions")
@@ -64,18 +63,44 @@ public class QuestionController {
     }
 
     @PostMapping(value = "/submit")
-    public Boolean submit(@RequestParam("file") MultipartFile file, Principal principal) throws IOException {
+    public Submission submit(@RequestParam("file") MultipartFile file, Principal principal) throws IOException {
         Long submissionTime = Date.from(Instant.now()).getTime();
+        SubmissionResponse submissionResponse = new SubmissionResponse();
         String submissionId;
         try(Scanner fileReader = new Scanner(file.getInputStream())) {
             submissionId = fileReader.nextLine();
         }
+
         Submission submission = submissionService.getSubmissionBykey(submissionId);
+        copyProperties(submission, submissionResponse);
+
         Boolean submissionExpired = submissionService.submissionExpired(submission, submissionTime);
-        HashMap<String, String> userSubmission = submissionService.getSubmittedTest(file);
+
+        if(submissionExpired){
+            submissionResponse.setMessage("This test set has expired - please request a new set");
+            return submissionResponse;
+        }
+
+
         Boolean linkedToTeam = submissionService.submissionLinkedToTeam(submission, principal.getName());
+        if(!linkedToTeam){
+            submissionResponse.setMessage("This test set is not linked to your team. this has been recorded");
+            //TODO add log here of possibly malicious behaviour
+            return submissionResponse;
+        }
+
+        HashMap<String, String> userSubmission = submissionService.getSubmittedTest(file);
         Boolean answersAreCorrect = submissionService.answersAreCorrect(submission, userSubmission);
-        return !submissionExpired && linkedToTeam && answersAreCorrect;
+
+        if(!answersAreCorrect){
+            submissionResponse.setMessage("Your submitted answers are not correct");
+            return submissionResponse;
+        }
+
+        Submission updatedSubmission = submissionService.updateSubmission(submission, submissionTime, true);
+        copyProperties(updatedSubmission, submissionResponse);
+        submissionResponse.setMessage("Congratulations - you have successfully completed this question");
+        return submissionResponse;
     }
 
     private Submission initializeSubmissionForQuestion(String name, Team team, int setSize) {

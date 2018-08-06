@@ -34,18 +34,34 @@ public class SubmissionService {
     }
 
     public Submission getSubmissionBykey(String id){
-        Optional<Submission> submission = submissionRepository.findById(Long.parseLong(id));
+        Optional<Submission> submission = submissionRepository.findById(Long.parseLong(id), 1);
         assert submission.isPresent();
         return submission.get();
     }
 
-    public List<Optional<Submission>> getSubmissionsForTeam(String name) {
-        List<Long> submissionIds = (List<Long>) teamRepository.getSubmissionIdsForTeam(name);
-        return submissionIds.stream().map(id -> submissionRepository.findById(id, 1)).collect(Collectors.toList());
+    private List<Long> getAllSubmissionIdsForTeam(String teamName) {
+        return (List<Long>) teamRepository.getSubmissionIdsForTeam(teamName);
+    }
+
+    public List<Optional<Submission>> getAttemptedSubmissionsForTeam(String name) {
+        List<Long> submissionIds = getAllSubmissionIdsForTeam(name);
+        return submissionIds
+                .stream()
+                .map(id -> submissionRepository.findById(id, 1))
+                .filter(submission -> submission.isPresent() && submission.get().getSuccessful() != null)
+                .collect(Collectors.toList());
+    }
+
+    private List<Optional<Submission>> getAllSubmissionsForTeam(String name) {
+        List<Long> submissionIds = getAllSubmissionIdsForTeam(name);
+        return submissionIds
+                .stream()
+                .map(id -> submissionRepository.findById(id, 1))
+                .collect(Collectors.toList());
     }
 
     public Boolean submissionLinkedToTeam(Submission submissionSpecimen, String teamName){
-        return getSubmissionsForTeam(teamName).stream().anyMatch(submission1 -> submission1.isPresent() && submission1.get().getKey().equals(submissionSpecimen.getKey()));
+        return getAllSubmissionsForTeam(teamName).stream().anyMatch(submission1 -> submission1.isPresent() && submission1.get().getKey().equals(submissionSpecimen.getKey()));
     }
 
     public Boolean answersAreCorrect(Submission submissionSpecimen, HashMap<String, String> userSubmission) {
@@ -80,5 +96,11 @@ public class SubmissionService {
             userSubmission.put(id, output);
         }
         return userSubmission;
+    }
+
+    public Submission updateSubmission(Submission submission, Long submissionTime, Boolean success) {
+        submission.setSubmissionTime(submissionTime);
+        submission.setSuccessful(success);
+        return submissionRepository.save(submission);
     }
 }
