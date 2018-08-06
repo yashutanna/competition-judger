@@ -14,7 +14,7 @@ import za.co.judge.services.SubmissionService;
 import za.co.judge.services.TeamService;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.IOException;
 import java.security.Principal;
 import java.sql.Date;
 import java.time.Instant;
@@ -75,7 +75,7 @@ public class QuestionController {
     }
 
     @PostMapping(value = "/submit")
-    public Boolean upload(@RequestParam("file") MultipartFile file, Principal principal) throws IOException {
+    public Boolean submit(@RequestParam("file") MultipartFile file, Principal principal) throws IOException {
         Long submissionTime = Date.from(Instant.now()).getTime();
         String submissionId;
         try(Scanner fileReader = new Scanner(file.getInputStream())) {
