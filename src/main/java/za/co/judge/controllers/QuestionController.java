@@ -12,6 +12,8 @@ import za.co.judge.services.QuestionService;
 import za.co.judge.services.SubmissionService;
 import za.co.judge.services.TeamService;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
@@ -37,16 +39,33 @@ public class QuestionController {
         return new ResponseEntity<>(questionService.getAllQuestions(), HttpStatus.OK);
     }
 
-    @GetMapping("/{teamName}/small-set")
-    public ResponseEntity<Submission> getSmallTestSet(@PathVariable("teamName") String teamName, Principal principal){
+    @GetMapping("/{questionName}/small-set")
+    public ResponseEntity<Submission> getSmallTestSet(@PathVariable("questionName") String questionName, Principal principal){
         Optional<Team> team = teamService.getTeam(principal.getName());
-        return team.map(team1 -> new ResponseEntity<>(initializeSubmissionForQuestion(teamName, team1, 5), HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
+        return team.map(team1 -> new ResponseEntity<>(initializeSubmissionForQuestion(questionName, team1, 5), HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
     }
 
-    @GetMapping("/{teamName}/large-set")
-    public ResponseEntity<Submission> getLargeTestSet(@PathVariable("teamName") String teamName, Principal principal){
+    @GetMapping("/{questionName}/large-set")
+    public ResponseEntity<Submission> getLargeTestSet(@PathVariable("questionName") String questionName, Principal principal){
         Optional<Team> team = teamService.getTeam(principal.getName());
-        return team.map(team1 -> new ResponseEntity<>(initializeSubmissionForQuestion(teamName, team1, 10), HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
+        return team.map(team1 -> new ResponseEntity<>(initializeSubmissionForQuestion(questionName, team1, 10), HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
+    }
+
+    @GetMapping("/{questionName}/large-set/download")
+    public void getLargeTestSetDownload(@PathVariable("questionName") String questionName, Principal principal, HttpServletResponse response) throws IOException {
+        Optional<Team> team = teamService.getTeam(principal.getName());
+        assert team.isPresent();
+        Submission submission = initializeSubmissionForQuestion(questionName, team.get(), 10);
+        questionService.getTestSetFileForSubmission(submission, response.getOutputStream());
+        response.flushBuffer();
+    }
+    @GetMapping("/{questionName}/small-set/download")
+    public void getSmallTestSetDownload(@PathVariable("questionName") String questionName, Principal principal, HttpServletResponse response) throws IOException {
+        Optional<Team> team = teamService.getTeam(principal.getName());
+        assert team.isPresent();
+        Submission submission = initializeSubmissionForQuestion(questionName, team.get(), 5);
+        questionService.getTestSetFileForSubmission(submission, response.getOutputStream());
+        response.flushBuffer();
     }
 
     private Submission initializeSubmissionForQuestion(String name, Team team, int setSize) {

@@ -30,4 +30,5 @@ public class SubmissionService {
         List<Long> submissionIds = (List<Long>) teamRepository.getSubmissionIdsForTeam(name);
         return submissionIds.stream().map(id -> submissionRepository.findById(id, 1)).collect(Collectors.toList());
     }
+
 }
