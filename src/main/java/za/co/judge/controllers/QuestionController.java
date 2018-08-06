@@ -45,6 +45,15 @@ public class QuestionController {
         return team.map(team1 -> new ResponseEntity<>(initializeSubmissionForQuestion(questionName, team1, 5), HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
     }
 
+    @GetMapping("/{questionName}/small-set/download")
+    public void getSmallTestSetDownload(@PathVariable("questionName") String questionName, Principal principal, HttpServletResponse response) throws IOException {
+        Optional<Team> team = teamService.getTeam(principal.getName());
+        assert team.isPresent();
+        Submission submission = initializeSubmissionForQuestion(questionName, team.get(), 5);
+        questionService.getTestSetFileForSubmission(submission, response.getOutputStream());
+        response.flushBuffer();
+    }
+
     @GetMapping("/{questionName}/large-set")
     public ResponseEntity<Submission> getLargeTestSet(@PathVariable("questionName") String questionName, Principal principal){
         Optional<Team> team = teamService.getTeam(principal.getName());
@@ -56,14 +65,6 @@ public class QuestionController {
         Optional<Team> team = teamService.getTeam(principal.getName());
         assert team.isPresent();
         Submission submission = initializeSubmissionForQuestion(questionName, team.get(), 10);
-        questionService.getTestSetFileForSubmission(submission, response.getOutputStream());
-        response.flushBuffer();
-    }
-    @GetMapping("/{questionName}/small-set/download")
-    public void getSmallTestSetDownload(@PathVariable("questionName") String questionName, Principal principal, HttpServletResponse response) throws IOException {
-        Optional<Team> team = teamService.getTeam(principal.getName());
-        assert team.isPresent();
-        Submission submission = initializeSubmissionForQuestion(questionName, team.get(), 5);
         questionService.getTestSetFileForSubmission(submission, response.getOutputStream());
         response.flushBuffer();
     }
