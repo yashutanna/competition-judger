@@ -49,7 +49,13 @@ public class SubmissionService {
     }
 
     public Boolean answersAreCorrect(Submission submissionSpecimen, HashMap<String, String> userSubmission) {
-        return submissionSpecimen.getTestSet().stream().allMatch(testSpecimen -> userSubmission.get(testSpecimen.getKey()).equals(testSpecimen.getOutput()));
+        return submissionSpecimen.getTestSet().stream().allMatch(testSpecimen -> {
+            String userOutput = userSubmission.get(testSpecimen.getKey());
+            if(userOutput == null)
+                return false;
+            String specimenOutput = testSpecimen.getOutput();
+            return userOutput.equals(specimenOutput);
+        });
     }
 
     public Boolean submissionExpired(Submission submissionSpecimen, Long submissionTime){
