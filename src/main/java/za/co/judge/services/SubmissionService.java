@@ -52,8 +52,16 @@ public class SubmissionService {
         Submission submission = getSubmissionBykey(submissionId);
         copyProperties(submission, submissionResponse);
 
+
+        Boolean linkedToTeam = submissionLinkedToTeam(submission, teamName);
+        if(!linkedToTeam){
+            submissionResponse.setMessage("This test set is not linked to your team. this has been recorded");
+            //TODO add log here of possibly malicious behaviour
+            return submissionResponse;
+        }
+
         Boolean submissionAlreadyPassedTests = submission.getSuccessful();
-        if(submissionAlreadyPassedTests){
+        if(submissionAlreadyPassedTests != null && submissionAlreadyPassedTests){
             submissionResponse.setMessage("You have already successfully passed this question - new attempts are not saved. please continue with the next question");
             return submissionResponse;
         }
@@ -62,14 +70,6 @@ public class SubmissionService {
 
         if(submissionExpired){
             submissionResponse.setMessage("This test set has expired - please request a new set");
-            return submissionResponse;
-        }
-
-
-        Boolean linkedToTeam = submissionLinkedToTeam(submission, teamName);
-        if(!linkedToTeam){
-            submissionResponse.setMessage("This test set is not linked to your team. this has been recorded");
-            //TODO add log here of possibly malicious behaviour
             return submissionResponse;
         }
 
