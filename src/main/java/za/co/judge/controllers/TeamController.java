@@ -19,12 +19,12 @@ public class TeamController {
     private TeamService teamService;
 
     @PostMapping("/")
-    public ResponseEntity<za.co.judge.domain.Team> addTeam(@RequestBody za.co.judge.domain.Team team) {
+    public ResponseEntity<Team> addTeam(@RequestBody Team team) {
         return new ResponseEntity<>(teamService.save(team), HttpStatus.OK);
     }
 
     @GetMapping("/{name}")
-    public ResponseEntity<za.co.judge.domain.Team> getTeam(@PathVariable("name") String name) {
+    public ResponseEntity<Team> getTeam(@PathVariable("name") String name) {
         Optional<Team> possibleTeam = teamService.getTeam(name);
         return possibleTeam.map(team -> new ResponseEntity<>(team, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }
