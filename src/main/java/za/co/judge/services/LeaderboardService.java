@@ -3,7 +3,6 @@ package za.co.judge.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import za.co.judge.domain.TeamStanding;
-import za.co.judge.repositories.SubmissionRepository;
 import za.co.judge.repositories.TeamRepository;
 
 import java.util.LinkedList;
@@ -11,8 +10,6 @@ import java.util.List;
 
 @Service
 public class LeaderboardService {
-    @Autowired
-    private SubmissionRepository submissionRepository;
     @Autowired
     private TeamRepository teamRepository;
 
