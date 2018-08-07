@@ -21,6 +21,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
                 //TODO remove this line when ready
                 .antMatchers(HttpMethod.POST, "/teams").permitAll()
+                .antMatchers(HttpMethod.GET, "/leaderboard").permitAll()
 
                 .anyRequest().authenticated()
                 .and()

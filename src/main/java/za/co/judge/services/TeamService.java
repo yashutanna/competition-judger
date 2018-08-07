@@ -50,4 +50,8 @@ public class TeamService {
         team.getSubmissions().add(submission);
         return teamRepository.save(team);
     }
+
+    public Collection<Team> getAllTeams() {
+        return (Collection<Team>) teamRepository.findAll();
+    }
 }
