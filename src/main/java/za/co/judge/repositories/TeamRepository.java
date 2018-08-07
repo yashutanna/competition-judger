@@ -16,7 +16,7 @@ public interface TeamRepository extends Neo4jRepository<Team, Long> {
     Collection<Long> getSubmissionIdsForTeam(@Param("name") String name);
 
     @Query("MATCH (m:Team) WHERE toLower(m.name) CONTAINS toLower({name}) RETURN ID(m)")
-    Long findTeamByName(@Param("name") String name);
+    Long findByName(@Param("name") String name);
 
-    Team findTeamByNameAndPassword(String name, String password);
+    Team findByNameAndPassword(String name, String password);
 }

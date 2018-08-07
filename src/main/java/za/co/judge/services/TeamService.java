@@ -12,6 +12,7 @@ import za.co.judge.repositories.TeamRepository;
 
 import java.security.Key;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Optional;
 
 @Service
@@ -22,7 +23,7 @@ public class TeamService {
     private String signingKey;
 
     public Optional<Team> getTeam(String name) {
-        Long teamId = teamRepository.findTeamByName(name);
+        Long teamId = teamRepository.findByName(name);
         return teamRepository.findById(teamId, 2);
     }
 
@@ -36,12 +37,15 @@ public class TeamService {
 
     public String authenticateTeam(String name, String password) {
 
-        Team resolvedTeam = teamRepository.findTeamByNameAndPassword(name, password);
+        Team resolvedTeam = teamRepository.findByNameAndPassword(name, password);
         if(resolvedTeam == null){
             return null;
         }
+        HashMap<String, Object> claims = new HashMap<>();
+        claims.put("roles", "contestant");
+        claims.put("sub", resolvedTeam.getName());
         Key key = Keys.hmacShaKeyFor(signingKey.getBytes());
-        String jwt = Jwts.builder().setSubject(resolvedTeam.getName()).signWith(key).compact();
+        String jwt = Jwts.builder().setClaims(claims).signWith(key).compact();
         assert Jwts.parser().setSigningKey(key).parseClaimsJws(jwt).getBody().getSubject().equals(resolvedTeam.getName());
         return jwt;
     }

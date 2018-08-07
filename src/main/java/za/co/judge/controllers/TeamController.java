@@ -3,11 +3,13 @@ package za.co.judge.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import za.co.judge.domain.Member;
 import za.co.judge.domain.Team;
 import za.co.judge.services.TeamService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +21,8 @@ public class TeamController {
     private TeamService teamService;
 
     @PostMapping("/")
-    public ResponseEntity<Team> addTeam(@RequestBody Team team) {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Team> addTeam(@RequestBody Team team, HttpServletRequest request) {
         return new ResponseEntity<>(teamService.save(team), HttpStatus.OK);
     }
 

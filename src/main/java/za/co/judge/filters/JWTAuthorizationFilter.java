@@ -7,13 +7,15 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import za.co.judge.domain.Role;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.StringTokenizer;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     private final String HEADER_STRING = "Authorization";
@@ -49,9 +51,16 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         token = token.replace(TOKEN_PREFIX, "");
         if (token != null) {
             String user = Jwts.parser().setSigningKey(Keys.hmacShaKeyFor(signingKey.getBytes())).parseClaimsJws(token).getBody().getSubject();
-
+            String roles = (String) Jwts.parser().setSigningKey(Keys.hmacShaKeyFor(signingKey.getBytes())).parseClaimsJws(token).getBody().get("roles");
+            StringTokenizer roleTokenizer = new StringTokenizer(roles, ",");
+            LinkedList<Role> userRoles = new LinkedList<>();
+            while(roleTokenizer.hasMoreElements()){
+                Role userRole = new Role();
+                userRole.setAuthority(roleTokenizer.nextToken());
+                userRoles.push(userRole);
+            }
             if (user != null) {
-                return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+                return new UsernamePasswordAuthenticationToken(user, null, userRoles);
             }
             return null;
         }
