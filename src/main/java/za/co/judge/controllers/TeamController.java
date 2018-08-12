@@ -27,7 +27,7 @@ public class TeamController {
     }
 
     @GetMapping("/{name}")
-    public ResponseEntity<Team> getTeam(@PathVariable("name") String name) {
+    public ResponseEntity<Team> getTeam(@PathVariable("name") String name) throws Exception {
         Optional<Team> possibleTeam = teamService.getTeam(name);
         return possibleTeam.map(team -> new ResponseEntity<>(team, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }

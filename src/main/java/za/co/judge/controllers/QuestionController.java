@@ -13,7 +13,6 @@ import za.co.judge.services.SubmissionService;
 import za.co.judge.services.TeamService;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +40,7 @@ public class QuestionController {
 
 
     @GetMapping("/{questionName}/small-set")
-    public void getSmallTestSetDownload(@PathVariable("questionName") String questionName, Principal principal, HttpServletResponse response) throws IOException {
+    public void getSmallTestSetDownload(@PathVariable("questionName") String questionName, Principal principal, HttpServletResponse response) throws Exception {
         Optional<Team> team = teamService.getTeam(principal.getName());
         assert team.isPresent();
         Submission submission = initializeSubmissionForQuestion(questionName, team.get(), 5);
@@ -50,7 +49,7 @@ public class QuestionController {
     }
 
     @GetMapping("/{questionName}/large-set")
-    public void getLargeTestSetDownload(@PathVariable("questionName") String questionName, Principal principal, HttpServletResponse response) throws IOException {
+    public void getLargeTestSetDownload(@PathVariable("questionName") String questionName, Principal principal, HttpServletResponse response) throws Exception {
         Optional<Team> team = teamService.getTeam(principal.getName());
         assert team.isPresent();
         Submission submission = initializeSubmissionForQuestion(questionName, team.get(), 10);
