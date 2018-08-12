@@ -4,6 +4,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import za.co.judge.domain.Member;
 import za.co.judge.domain.Submission;
@@ -24,6 +25,9 @@ public class TeamService {
 
     public Optional<Team> getTeam(String name) {
         Long teamId = teamRepository.findByName(name);
+        if(teamId == null){
+            throw new AccessDeniedException("cannot get team: " + name);
+        }
         return teamRepository.findById(teamId, 2);
     }
 
