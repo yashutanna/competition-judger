@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import za.co.judge.domain.Submission;
+import za.co.judge.services.ScoringService;
 import za.co.judge.services.SubmissionService;
 
 import java.io.IOException;
@@ -20,6 +21,8 @@ public class SubmissionController {
 
     @Autowired
     private SubmissionService submissionService;
+    @Autowired
+    private ScoringService scoringService;
 
     @PostMapping(value = "")
     public Submission submit(@RequestParam("file") MultipartFile file, Principal principal) throws IOException {

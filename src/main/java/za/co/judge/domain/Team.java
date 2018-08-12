@@ -14,6 +14,7 @@ import java.util.List;
 @NodeEntity
 public class Team extends BaseEntity {
 
+    private Integer score = 0;
     private String name;
     private String university;
 

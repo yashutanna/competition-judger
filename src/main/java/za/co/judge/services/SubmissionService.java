@@ -3,10 +3,8 @@ package za.co.judge.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import za.co.judge.domain.Question;
-import za.co.judge.domain.Submission;
-import za.co.judge.domain.SubmissionResponse;
-import za.co.judge.domain.Test;
+import za.co.judge.domain.*;
+import za.co.judge.repositories.QuestionRepository;
 import za.co.judge.repositories.SubmissionRepository;
 import za.co.judge.repositories.TeamRepository;
 
@@ -21,10 +19,15 @@ import static org.springframework.beans.BeanUtils.copyProperties;
 
 @Service
 public class SubmissionService {
+    private static final Integer MAX_POINTS_PER_QUESTION = 13;
     @Autowired
     private SubmissionRepository submissionRepository;
     @Autowired
     private TeamRepository teamRepository;
+    @Autowired
+    private ScoringService scoringService;
+    @Autowired
+    private QuestionRepository questionRepository;
 
     public Submission startSubmissionForQuestion(Question question, List<Test> testSet) {
         Submission submission = new Submission();
@@ -50,6 +53,7 @@ public class SubmissionService {
         }
 
         Submission submission = getSubmissionBykey(submissionId);
+        String questionName = submission.getQuestion().getName();
         copyProperties(submission, submissionResponse);
 
 
@@ -80,7 +84,16 @@ public class SubmissionService {
             return submissionResponse;
         }
 
+        Integer allocatablePoints = MAX_POINTS_PER_QUESTION - questionRepository.countNumberOfSubmissionsForQuestion(questionName);
         Submission updatedSubmission = updateSubmission(submission, submissionTime, true);
+
+        Long submittersId = teamRepository.findByName(teamName);
+        Optional<Team> optionalTeam = teamRepository.findById(submittersId, 1);
+        assert optionalTeam.isPresent();
+        Team submitters = optionalTeam.get();
+        submitters.setScore(submitters.getScore() + allocatablePoints);
+        teamRepository.save(submitters);
+
         copyProperties(updatedSubmission, submissionResponse);
         submissionResponse.setMessage("Congratulations - you have successfully completed this question");
         return submissionResponse;

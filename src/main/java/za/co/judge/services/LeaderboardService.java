@@ -18,6 +18,7 @@ public class LeaderboardService {
         teamRepository.findAll(2).forEach(team -> {
             TeamStanding standing = new TeamStanding();
             standing.setUniversity(team.getUniversity());
+            standing.setScore(team.getScore());
             team.getSubmissions().stream()
                 .filter(submission -> submission.getSuccessful() != null)
                 .forEach(teamSubmission -> standing.getSubmissions().put(teamSubmission.getQuestion().getName(), teamSubmission.getSuccessful()));

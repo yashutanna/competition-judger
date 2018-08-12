@@ -11,4 +11,5 @@ public class TeamStanding {
 
     private String university;
     HashMap<String, Boolean> submissions = new HashMap<>();
+    private Integer score;
 }

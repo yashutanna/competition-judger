@@ -18,4 +18,7 @@ public interface QuestionRepository extends Neo4jRepository<Question, Long> {
 
     @Query("MATCH (m:Question)-[r:TESTED_BY]->(a:Test) WHERE toLower(m.name) CONTAINS toLower({name}) WITH a, rand() AS number RETURN a ORDER BY number LIMIT {limit}")
     List<Test> getTestSet(@Param("name") String name, @Param("limit") int limit);
+
+    @Query("MATCH (m:Question)<-[r:FOR_QUESTION]-(a:Submission) WHERE toLower(m.name) CONTAINS toLower({name}) and a.successful = true RETURN COUNT(a)")
+    Integer countNumberOfSubmissionsForQuestion(@Param("name") String name);
 }
