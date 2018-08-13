@@ -1,0 +1,22 @@
+{
+  "name": "judge-spring",
+  "version": "1.0.0",
+  "description": "frontend for competition judger",
+  "main": "client/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yashutanna/competition-judger.git"
+  },
+  "author": "Yashu Tanna",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yashutanna/competition-judger/issues"
+  },
+  "homepage": "https://github.com/yashutanna/competition-judger#readme",
+  "dependencies": {
+    "react": "^16.4.2"
+  }
+}
