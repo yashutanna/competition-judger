@@ -21,7 +21,7 @@ public class UserController {
     private AdminService adminService;
 
     @PostMapping("/login")
-    public ResponseEntity<Team> login(@RequestBody Team team) {
+    public ResponseEntity<String> login(@RequestBody Team team) {
         String name = team.getName();
         String password = team.getPassword();
         String teamJwtToken = teamService.authenticateTeam(name, password);
@@ -30,8 +30,8 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         if(teamJwtToken == null){
-            return ResponseEntity.status(HttpStatus.OK).header("Set-Cookie", "bearer_token=" + adminJwtToken).build();
+            return ResponseEntity.status(HttpStatus.OK).body(adminJwtToken);
         }
-        return ResponseEntity.status(HttpStatus.OK).header("Set-Cookie", "bearer_token=" + teamJwtToken).build();
+        return ResponseEntity.status(HttpStatus.OK).body(teamJwtToken);
     }
 }

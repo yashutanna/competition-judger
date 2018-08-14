@@ -1,32 +1,43 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Switch, Route, Router } from 'react-router'
+import logo from './logo.png';
+import './index.css';
+import 'whatwg-fetch'
 
 import Home from './Home/'
+import Questions from './Questions/'
+import { QUESTIONS, SUBMISSIONS, HOME } from './Routes';
 
 import createBrowserHistory from 'history/createBrowserHistory'
+import { CookiesProvider } from 'react-cookie';
+import { Container } from 'reactstrap';
 
-const history = createBrowserHistory()
+const history = createBrowserHistory();
 
 const App = () => (
   <Router history={history}>
-    <Switch>
-      <Route exact path="/" component={Home}/>
-      <Route path="/question" component={() => (
-        <div>
-            Question
-        </div>
-      )}/>
-      <Route path="/submissions" component={() => (
-        <div>
-            Submission
-        </div>
-      )}/>
-      <Route component={() => (
-        <div>
-            Not Found
-        </div>
-      )}/>
-    </Switch>
+    <CookiesProvider>
+      <div className="App-header">
+        <img src={logo} alt="logo" className="App-logo float-left"/>
+        <h1 className="App-title center">Standard Bank Tech Impact Challenge 2018</h1>
+      </div>
+      <Container className="App-container">
+        <Switch>
+          <Route exact path={HOME} component={Home}/>
+          <Route path={QUESTIONS} component={Questions}/>
+          <Route path={SUBMISSIONS} component={() => (
+            <div>
+                Submission
+            </div>
+          )}/>
+          <Route component={() => (
+            <div>
+                Not Found
+            </div>
+          )}/>
+        </Switch>
+      </Container>
+    </CookiesProvider>
   </Router>
 );
 
