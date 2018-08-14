@@ -5,6 +5,7 @@ import { withCookies } from 'react-cookie';
 import { withRouter } from 'react-router-dom';
 import { startCase } from 'lodash';
 import moment from 'moment';
+import Countdown from 'react-countdown-now';
 
 const fileDownload = require('js-file-download');
 
@@ -23,6 +24,9 @@ class App extends Component {
     super();
     this.state = {
       requestedSubmission: false,
+      questionsAttempted:{
+
+      }
     }
     this.selectFileToUpload = this.selectFileToUpload.bind(this);
     this.uploadFile = this.uploadFile.bind(this);
@@ -72,7 +76,10 @@ class App extends Component {
     .then((questions) => {
       fileDownload(questions, `${questionName}_small_${moment().valueOf()}`)
       this.setState({
-        requestedSubmission: true
+        requestedSubmission: true,
+        questionsAttempted:{
+          [questionName]: true,
+        }
       })
     });
   }
@@ -84,13 +91,16 @@ class App extends Component {
     .then((questions) => {
       fileDownload(questions, `${questionName}_large_${moment().valueOf()}`)
       this.setState({
-        requestedSubmission: true
+        requestedSubmission: true,
+        questionsAttempted:{
+          [questionName]: true,
+        }
       })
     });
   }
 
   render() {
-    const { questions, requestedSubmission } = this.state;
+    const { questions, requestedSubmission, questionsAttempted } = this.state;
     return (
       <div>
         <h3 className="text-center">Questions</h3>
@@ -101,7 +111,15 @@ class App extends Component {
                 <Card className="Question-card">
                   <CardBody>
                     <CardTitle className="text-center">{startCase(question.name)}</CardTitle>
-                    <CardSubtitle className="Question_Subtitle text-center">Time limit <span className="text-primary">{question.timeLimit}</span> seconds</CardSubtitle>
+                    {
+                      questionsAttempted[question.name] ? (
+                        <div>
+                          <CardSubtitle className="Question_Subtitle text-center">Time Remaining <Countdown date={Date.now() + (question.timeLimit * 1000)} /> </CardSubtitle>
+                        </div>
+                      ) : (
+                        <CardSubtitle className="Question_Subtitle text-center">Time limit <span className="text-primary">{question.timeLimit}</span> seconds</CardSubtitle>
+                      )
+                    }
                     <div>
                       <Button className="float-left" onClick={this.getSmallTestSet(question.name)}>Small Test Set</Button>
                       <Button className="float-right" onClick={this.getLargeTestSet(question.name)}>Large Test Set</Button>
