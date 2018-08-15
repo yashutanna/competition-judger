@@ -115,7 +115,11 @@ class App extends Component {
                     {
                       questionsAttempted[question.name] ? (
                         <div>
-                          <CardSubtitle className="Question_Subtitle text-center">Time Remaining <Countdown date={Date.now() + (question.timeLimit * 1000)} /> </CardSubtitle>
+                          <CardSubtitle className="Question_Subtitle text-center">Time Remaining <Countdown onComplete={() => this.setState({
+                            questionsAttempted:{
+                              [question.name]: false,
+                            }
+                          })} date={Date.now() + (question.timeLimit * 1000)} /> </CardSubtitle>
                         </div>
                       ) : (
                         <CardSubtitle className="Question_Subtitle text-center">Time limit <span className="text-primary">{question.timeLimit}</span> seconds</CardSubtitle>
