@@ -67,8 +67,7 @@ public class SubmissionService {
         String questionName = submission.getQuestion().getName();
         copyProperties(submission, submissionResponse);
 
-        Boolean linkedToTeam = submissionLinkedToTeam(submission, teamName);
-        if(!linkedToTeam){
+        if(!submissionLinkedToTeam(submission, teamName)){
             //TODO add log here of possibly malicious behaviour
             return new SubmissionResponse("This test set is not linked to your team. this has been recorded");
         }
@@ -81,15 +80,17 @@ public class SubmissionService {
         if (submissionExpired(submission, submissionTime)){
             submissionResponse.setMessage("This test set has expired - please request a new set");
             submissionResponse.setSuccessful(false);
+            updateSubmission(submission, submissionTime, false);
             return submissionResponse;
         }
 
         if (!answersAreCorrect(file, submission)){
             submissionResponse.setMessage("Your submitted answers are not correct");
             submissionResponse.setSuccessful(false);
+            updateSubmission(submission, submissionTime, false);
             return submissionResponse;
         }
-        
+
         updateSubmission(submission, submissionTime, true);
         submissionResponse.setMessage("Congratulations - you have successfully completed this question");
         Integer allocatablePoints = MAX_POINTS_PER_QUESTION - questionService.countNumberOfSubmissionsForQuestion(questionName);
