@@ -1,6 +1,11 @@
 package za.co.judge.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.stereotype.Service;
 import za.co.judge.domain.Question;
 import za.co.judge.domain.Submission;
@@ -12,15 +17,23 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
 public class QuestionService {
-    @Autowired
     private QuestionRepository questionRepository;
 
-    public List<Test> getTestSetForQuestion(String questionName){
-        return (List<Test>) questionRepository.getTestsForQuestion(questionName);
+    private HashMap<String, String> testSetSources;
+
+    private ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.json().build();
+
+    @Autowired
+    public QuestionService(QuestionRepository questionRepository) {
+        this.questionRepository = questionRepository;
+        testSetSources = new HashMap<>();
+        testSetSources.put("NaiveCommitments-part1", "http://52.157.232.213:3000/generate/part1");
+        testSetSources.put("NaiveCommitments-part2", "http://52.157.232.213:3000/generate/part2");
     }
 
     public List<Question> getAllQuestions() {
@@ -32,6 +45,19 @@ public class QuestionService {
     }
 
     public List<Test> getQuestionTestSet(String name, int limit) {
+        if(testSetSources.containsKey(name)){
+            try {
+                HttpResponse<String> response = Unirest.get(testSetSources.get(name))
+                        .asString();
+                Question question = objectMapper.readValue(response.getBody(), Question.class);
+                Question dbQuestion = questionRepository.getQuestion(name);
+                dbQuestion.getTestSet().addAll(question.getTestSet());
+                Question savedQuestion = questionRepository.save(dbQuestion);
+                return savedQuestion.getTestSet();
+            } catch (UnirestException | IOException e) {
+                e.printStackTrace();
+            }
+        }
         return new ArrayList<>(questionRepository.getTestSet(name, limit));
     }
 
@@ -42,21 +68,15 @@ public class QuestionService {
     public void getTestSetFileForSubmission(Submission submission, OutputStream os) throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
         bw.write(submission.getId().toString());
-        bw.newLine();
-        submission.getTestSet().forEach(test -> {
-            try {
-                String line = test.getKey() + "|" + test.getInput();
-                bw.write(line);
-                bw.newLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-        bw.flush();
+        readFromBufferedWriter(submission.getTestSet(), bw);
     }
     public void getTestSetFileForSubmission(List<Test> testSet, OutputStream os) throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
         bw.write("-999");
+        readFromBufferedWriter(testSet, bw);
+    }
+
+    private void readFromBufferedWriter(List<Test> testSet, BufferedWriter bw) throws IOException {
         bw.newLine();
         testSet.forEach(test -> {
             try {

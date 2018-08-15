@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './styles.css';
-import { Button, Input, Form, Row, Col, Label, FormGroup } from 'reactstrap';
+import { Button, Input, Form, Row, Col, Label, FormGroup, Alert } from 'reactstrap';
 import { withCookies } from 'react-cookie';
 import { withRouter } from 'react-router-dom';
 import { QUESTIONS } from '../Routes';
@@ -22,12 +22,19 @@ class App extends Component {
     })
     .then((res) => res.text())
     .then((jwt) => {
-      this.props.cookies.set('token', jwt);
-      this.props.history.push(QUESTIONS); 
+      if(jwt){
+        this.props.cookies.set('token', jwt);
+        this.props.history.push(QUESTIONS); 
+      } else {
+        this.setState({
+          loginFailed: true,
+        })
+      }
     });
   }
 
   render() {
+    const { loginFailed } = this.state;
     return (
       <div className="Login-container">
         <Row>
@@ -59,6 +66,13 @@ class App extends Component {
             </Form>
           </Col>
         </Row>
+        {
+          loginFailed && (
+            <Alert color="danger">
+              Login failed
+            </Alert>
+          )
+        }
       </div>
     );
   }

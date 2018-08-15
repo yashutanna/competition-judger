@@ -19,8 +19,8 @@ const App = () => (
   <Router history={history}>
     <CookiesProvider>
       <div className="App-header">
-        <img src={logo} alt="logo" className="App-logo float-left"/>
-        <h1 className="App-title center">Standard Bank Tech Impact Challenge 2018</h1>
+        <img src={logo} alt="logo" className="App-logo"/>
+        <h1 className="App-title">Standard Bank Tech Impact Challenge 2018</h1>
       </div>
       <Container className="App-container">
         <Switch>
