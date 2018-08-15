@@ -21,4 +21,7 @@ public interface QuestionRepository extends Neo4jRepository<Question, Long> {
 
     @Query("MATCH (m:Question)<-[r:FOR_QUESTION]-(a:Submission) WHERE toLower(m.name) CONTAINS toLower({name}) and a.successful = true RETURN COUNT(a)")
     Integer countNumberOfSubmissionsForQuestion(@Param("name") String name);
+
+    @Query("MATCH (m:Question)<-[r:FOR_QUESTION]-(a:Submission)<-[:SUBMITTED]-(t:Team) WHERE toLower(m.name) CONTAINS toLower({questionName}) AND toLower(t.name) CONTAINS toLower({teamName}) and a.successful = true RETURN COUNT(a)")
+    Integer correctSubmissionExistsForQuestionByTeam(@Param("questionName") String questionName, @Param("teamName") String teamName);
 }

@@ -13,7 +13,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
@@ -54,5 +53,27 @@ public class QuestionService {
             }
         });
         bw.flush();
+    }
+    public void getTestSetFileForSubmission(List<Test> testSet, OutputStream os) throws IOException {
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
+        bw.write("-999");
+        bw.newLine();
+        testSet.forEach(test -> {
+            try {
+                String line = test.getKey() + "|" + test.getInput();
+                bw.write(line);
+                bw.newLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        bw.flush();
+    }
+
+    public Boolean teamHasAlreadySuccessfullyAnsweredQuestion(String questionName, String teamName){
+        return questionRepository.correctSubmissionExistsForQuestionByTeam(questionName, teamName) > 0;
+    }
+    public Integer countNumberOfSubmissionsForQuestion(String questionName){
+        return questionRepository.countNumberOfSubmissionsForQuestion(questionName);
     }
 }

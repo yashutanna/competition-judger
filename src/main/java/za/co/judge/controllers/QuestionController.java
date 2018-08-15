@@ -45,8 +45,8 @@ public class QuestionController {
     public void getSmallTestSetDownload(@PathVariable("questionName") String questionName, Principal principal, HttpServletResponse response) throws Exception {
         Optional<Team> team = teamService.getTeam(principal.getName());
         assert team.isPresent();
-        Submission submission = initializeSubmissionForQuestion(questionName, team.get(), 5);
-        questionService.getTestSetFileForSubmission(submission, response.getOutputStream());
+        List<Test> questionTestSet = questionService.getQuestionTestSet(questionName, 5);
+        questionService.getTestSetFileForSubmission(questionTestSet, response.getOutputStream());
         response.flushBuffer();
     }
 
@@ -54,15 +54,10 @@ public class QuestionController {
     public void getLargeTestSetDownload(@PathVariable("questionName") String questionName, Principal principal, HttpServletResponse response) throws Exception {
         Optional<Team> team = teamService.getTeam(principal.getName());
         assert team.isPresent();
-        Submission submission = initializeSubmissionForQuestion(questionName, team.get(), 10);
+        List<Test> questionTestSet = questionService.getQuestionTestSet(questionName, 10);
+        Submission submission = submissionService.startSubmissionForQuestion(questionService.getQuestion(questionName), questionTestSet);
+        teamService.registerSubmission(team.get(), submission);
         questionService.getTestSetFileForSubmission(submission, response.getOutputStream());
         response.flushBuffer();
-    }
-
-    private Submission initializeSubmissionForQuestion(String name, Team team, int setSize) {
-        List<Test> questionTestSet = questionService.getQuestionTestSet(name, setSize);
-        Submission submission = submissionService.startSubmissionForQuestion(questionService.getQuestion(name), questionTestSet);
-        teamService.registerSubmission(team, submission);
-        return submission;
     }
 }

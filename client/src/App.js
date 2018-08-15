@@ -6,11 +6,12 @@ import 'whatwg-fetch'
 
 import Home from './Home/'
 import Questions from './Questions/'
-import { QUESTIONS, SUBMISSIONS, HOME } from './Routes';
+import { QUESTIONS, SUBMISSIONS, HOME, LEADERBOARD } from './Routes';
 
 import createBrowserHistory from 'history/createBrowserHistory'
 import { CookiesProvider } from 'react-cookie';
 import { Container } from 'reactstrap';
+import Leaderboard from './Leaderboard';
 
 const history = createBrowserHistory();
 
@@ -25,6 +26,7 @@ const App = () => (
         <Switch>
           <Route exact path={HOME} component={Home}/>
           <Route path={QUESTIONS} component={Questions}/>
+          <Route path={LEADERBOARD} component={Leaderboard}/>
           <Route path={SUBMISSIONS} component={() => (
             <div>
                 Submission

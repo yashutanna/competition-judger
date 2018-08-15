@@ -17,6 +17,7 @@ body {
 .App-container {
   background: white;
   margin: 5%;
+  padding: 1%;
   /* max-width: 80%; */
 }
 

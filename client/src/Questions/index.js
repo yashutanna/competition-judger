@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './styles.css';
-import { Card, CardBody, CardTitle, CardSubtitle, Row, Col, Button, Input, Form, FormGroup, Label } from 'reactstrap';
+import { Card, CardBody, CardTitle, CardSubtitle, Row, Col, Button, Input, Form, FormGroup, Alert } from 'reactstrap';
 import { withCookies } from 'react-cookie';
 import { withRouter } from 'react-router-dom';
 import { startCase } from 'lodash';
@@ -23,7 +23,6 @@ class App extends Component {
   constructor(){
     super();
     this.state = {
-      requestedSubmission: false,
       questionsAttempted:{
 
       }
@@ -52,7 +51,7 @@ class App extends Component {
     })
   }
   
-  uploadFile = () => {
+  uploadFile = (questionName) => () => {
     const { fileToUpload } = this.state;
     const token = this.props.cookies.get('token');
     fetch('http://localhost:8080/submissions/', {
@@ -64,8 +63,12 @@ class App extends Component {
     })
     .then((res) => res.json())
     .then((res) => {
-      // debugger;
-      console.log(res);
+      this.setState({
+        questionsAttempted:{
+          [questionName]: false,
+        },
+        submission: res
+      })
     })
   }
 
@@ -76,7 +79,6 @@ class App extends Component {
     .then((questions) => {
       fileDownload(questions, `${questionName}_small_${moment().valueOf()}`)
       this.setState({
-        requestedSubmission: true,
         questionsAttempted:{
           [questionName]: true,
         }
@@ -91,7 +93,6 @@ class App extends Component {
     .then((questions) => {
       fileDownload(questions, `${questionName}_large_${moment().valueOf()}`)
       this.setState({
-        requestedSubmission: true,
         questionsAttempted:{
           [questionName]: true,
         }
@@ -100,7 +101,7 @@ class App extends Component {
   }
 
   render() {
-    const { questions, requestedSubmission, questionsAttempted } = this.state;
+    const { questions, questionsAttempted, fileToUpload, submission } = this.state;
     return (
       <div>
         <h3 className="text-center">Questions</h3>
@@ -123,7 +124,23 @@ class App extends Component {
                     <div>
                       <Button className="float-left" onClick={this.getSmallTestSet(question.name)}>Small Test Set</Button>
                       <Button className="float-right" onClick={this.getLargeTestSet(question.name)}>Large Test Set</Button>
-                    </div>                    
+                    </div>
+                    {
+                      questionsAttempted[question.name] && (  
+                        <Form className="Question-submission-form">
+                          <h6 className="text-center text-secondary">Upload Submission</h6>
+                          <FormGroup>
+                            <Input
+                              type="file"
+                              name="file"
+                              id="file"
+                              onChange={this.selectFileToUpload}
+                            />
+                          </FormGroup>
+                          <Button disabled={!fileToUpload} color="primary" onClick={this.uploadFile(question.name)}>Submit</Button>
+                        </Form> 
+                      )
+                    }               
                   </CardBody>
                 </Card>
               </Col>
@@ -131,27 +148,24 @@ class App extends Component {
           }
         </Row>
         {
-          requestedSubmission && (  
-            <Row>
-              <Col xs="12">
-                <Card className="Question-card">
-                  <CardBody>
-                    <CardTitle className="text-center">Submit Answer</CardTitle>
-                    <Form className="Question-submission-form">
-                      <FormGroup>
-                        <Input
-                          type="file"
-                          name="file"
-                          id="file"
-                          onChange={this.selectFileToUpload}
-                        />
-                      </FormGroup>
-                      <Button color="primary" onClick={this.uploadFile}>Submit</Button>
-                    </Form>                 
-                  </CardBody>
-                </Card>
-              </Col>
-            </Row>
+          submission && submission.successful === true && (
+            <Alert color="success">
+              {submission.message}
+            </Alert>
+          )
+        }
+        {
+          submission && submission.successful === false && (
+            <Alert color="danger">
+              {submission.message}
+            </Alert>
+          )
+        }
+        {
+          submission && submission.successful === undefined && (
+            <Alert color="dark">
+              {submission.message}
+            </Alert>
           )
         }
 

@@ -4,15 +4,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import za.co.judge.domain.*;
-import za.co.judge.repositories.QuestionRepository;
 import za.co.judge.repositories.SubmissionRepository;
 import za.co.judge.repositories.TeamRepository;
+import za.co.judge.repositories.TestRepository;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static org.springframework.beans.BeanUtils.copyProperties;
@@ -23,11 +24,13 @@ public class SubmissionService {
     @Autowired
     private SubmissionRepository submissionRepository;
     @Autowired
+    private TestRepository testRepository;
+    @Autowired
     private TeamRepository teamRepository;
     @Autowired
     private ScoringService scoringService;
     @Autowired
-    private QuestionRepository questionRepository;
+    private QuestionService questionService;
 
     public Submission startSubmissionForQuestion(Question question, List<Test> testSet) {
         Submission submission = new Submission();
@@ -36,26 +39,33 @@ public class SubmissionService {
         return submissionRepository.save(submission);
     }
 
-    public List<Optional<Submission>> getAttemptedSubmissionsForTeam(String name) {
-        List<Long> submissionIds = getAllSubmissionIdsForTeam(name);
-        return submissionIds
-                .stream()
-                .map(id -> submissionRepository.findById(id, 1))
-                .filter(submission -> submission.isPresent() && submission.get().getSuccessful() != null)
-                .collect(Collectors.toList());
-    }
-
     public Submission checkSubmission(MultipartFile file, String teamName, Long submissionTime) throws IOException {
         SubmissionResponse submissionResponse = new SubmissionResponse();
         String submissionId;
         try(Scanner fileReader = new Scanner(file.getInputStream())) {
             submissionId = fileReader.nextLine();
         }
+        if(submissionId.equals("-999")) {
+            return checkSubmissionForSmallTestSet(file, submissionResponse);
+        }
+        return checkSubmissionForLargeTestSet(file, teamName, submissionTime, submissionResponse, submissionId);
+    }
 
+    private Submission checkSubmissionForSmallTestSet(MultipartFile file, SubmissionResponse submissionResponse) throws IOException {
+        if (answersAreCorrect(file)){
+            submissionResponse.setSuccessful(true);
+            submissionResponse.setMessage("Your submitted answers are correct");
+            return submissionResponse;
+        }
+        submissionResponse.setSuccessful(false);
+        submissionResponse.setMessage("Your submitted answers are not correct");
+        return submissionResponse;
+    }
+
+    private Submission checkSubmissionForLargeTestSet(MultipartFile file, String teamName, Long submissionTime, SubmissionResponse submissionResponse, String submissionId) throws IOException {
         Submission submission = getSubmissionBykey(submissionId);
         String questionName = submission.getQuestion().getName();
         copyProperties(submission, submissionResponse);
-
 
         Boolean linkedToTeam = submissionLinkedToTeam(submission, teamName);
         if(!linkedToTeam){
@@ -63,28 +73,26 @@ public class SubmissionService {
             return new SubmissionResponse("This test set is not linked to your team. this has been recorded");
         }
 
-        Boolean submissionAlreadyPassedTests = submission.getSuccessful();
-        if(submissionAlreadyPassedTests != null && submissionAlreadyPassedTests){
+        if (SubmissionAlreadyPassed(teamName, questionName)){
             submissionResponse.setMessage("You have already successfully passed this question - new attempts are not saved. please continue with the next question");
             return submissionResponse;
         }
 
-        Boolean submissionExpired = submissionExpired(submission, submissionTime);
-
-        if(submissionExpired){
+        if (submissionExpired(submission, submissionTime)){
             submissionResponse.setMessage("This test set has expired - please request a new set");
+            submissionResponse.setSuccessful(false);
             return submissionResponse;
         }
 
-        HashMap<String, String> userSubmission = getSubmittedTest(file);
-        Boolean answersAreCorrect = answersAreCorrect(submission, userSubmission);
-
-        if(!answersAreCorrect){
+        if (!answersAreCorrect(file, submission)){
             submissionResponse.setMessage("Your submitted answers are not correct");
+            submissionResponse.setSuccessful(false);
             return submissionResponse;
         }
-
-        Integer allocatablePoints = MAX_POINTS_PER_QUESTION - questionRepository.countNumberOfSubmissionsForQuestion(questionName);
+        
+        updateSubmission(submission, submissionTime, true);
+        submissionResponse.setMessage("Congratulations - you have successfully completed this question");
+        Integer allocatablePoints = MAX_POINTS_PER_QUESTION - questionService.countNumberOfSubmissionsForQuestion(questionName);
         Submission updatedSubmission = updateSubmission(submission, submissionTime, true);
 
         Long submittersId = teamRepository.findByName(teamName);
@@ -95,8 +103,22 @@ public class SubmissionService {
         teamRepository.save(submitters);
 
         copyProperties(updatedSubmission, submissionResponse);
-        submissionResponse.setMessage("Congratulations - you have successfully completed this question");
         return submissionResponse;
+    }
+
+    private boolean answersAreCorrect(MultipartFile file, Submission submission) throws IOException {
+        HashMap<String, String> userSubmission = getSubmittedTest(file);
+        Boolean answersAreCorrect = answersAreCorrect(submission, userSubmission);
+        return !answersAreCorrect;
+    }
+    private boolean answersAreCorrect(MultipartFile file) throws IOException {
+        HashMap<String, String> userSubmission = getSubmittedTest(file);
+        return answersAreCorrect(userSubmission);
+    }
+
+    private boolean SubmissionAlreadyPassed(String teamName, String questionName) {
+        Boolean submissionAlreadyPassedTests = questionService.teamHasAlreadySuccessfullyAnsweredQuestion(questionName, teamName);
+        return submissionAlreadyPassedTests != null && submissionAlreadyPassedTests;
     }
 
     private Submission getSubmissionBykey(String id){
@@ -129,6 +151,15 @@ public class SubmissionService {
             String specimenOutput = testSpecimen.getOutput();
             return userOutput.equals(specimenOutput);
         });
+    }
+    private Boolean answersAreCorrect(HashMap<String, String> userSubmission) {
+        AtomicReference<Boolean> hasAnyIncorrect = new AtomicReference<>(false);
+        userSubmission.forEach(((s, s2) -> {
+            if(!testRepository.getByKey(s).get().getOutput().equals(s2)){
+                hasAnyIncorrect.set(true);
+            }
+        }));
+        return !hasAnyIncorrect.get();
     }
 
     private Boolean submissionExpired(Submission submissionSpecimen, Long submissionTime){
