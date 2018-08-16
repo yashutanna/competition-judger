@@ -77,6 +77,11 @@ public class SubmissionService {
             return submissionResponse;
         }
 
+        if (isNotNewestSubmission(teamName, submissionId)){
+            submissionResponse.setMessage("You are attempting to submit an answer for an old test set - Please start with a new test set");
+            return submissionResponse;
+        }
+
         if (submissionExpired(submission, submissionTime)){
             submissionResponse.setMessage("This test set has expired - please request a new set");
             submissionResponse.setSuccessful(false);
@@ -114,6 +119,11 @@ public class SubmissionService {
     private boolean answersAreCorrect(MultipartFile file) throws IOException {
         HashMap<String, String> userSubmission = getSubmittedTest(file);
         return answersAreCorrect(userSubmission);
+    }
+
+    private boolean isNotNewestSubmission(String teamName, String submissionId) {
+        List<Submission> teamSubmissions = (List<Submission>) submissionRepository.findByTeam(teamName);
+        return !teamSubmissions.get(0).getId().toString().equals(submissionId);
     }
 
     private boolean SubmissionAlreadyPassed(String teamName, String questionName) {
