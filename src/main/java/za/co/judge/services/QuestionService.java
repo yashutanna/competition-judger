@@ -32,8 +32,10 @@ public class QuestionService {
     public QuestionService(QuestionRepository questionRepository) {
         this.questionRepository = questionRepository;
         testSetSources = new HashMap<>();
-        testSetSources.put("NaiveCommitments-part1", "http://52.157.232.213:3000/generate/part1");
-        testSetSources.put("NaiveCommitments-part2", "http://52.157.232.213:3000/generate/part2");
+        testSetSources.put("NaiveCommitments-part1", "http://52.157.232.213:3000/q1/part1");
+        testSetSources.put("NaiveCommitments-part2", "http://52.157.232.213:3000/q1/part2");
+        testSetSources.put("NaiveSchnorr-part1", "http://52.157.232.213:3002/q2/part1");
+        testSetSources.put("lightningRouting", "http://52.157.232.213:3001/q3/part1");
     }
 
     public List<Question> getAllQuestions() {
