@@ -29,7 +29,7 @@ public class SubmissionController {
     public Submission submit(@RequestParam("file") MultipartFile file, Principal principal) throws IOException {
         Long submissionTime = Date.from(Instant.now()).getTime();
         Submission storedSubmission = submissionService.checkSubmission(file, principal.getName(), submissionTime);
-        String filePath = System.getProperty("user.dir") + "/" + principal.getName() + "_" + submissionTime.toString();
+        String filePath = System.getProperty("user.dir") + "/" + principal.getName() + "_" + submissionTime.toString() + ".bak";
         file.transferTo(new File(filePath));
         return storedSubmission;
     }

@@ -17,3 +17,4 @@ node_modules
 gs-spring-boot.iml
 
 *.iml
+*.bak
