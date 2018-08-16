@@ -105,6 +105,12 @@ class App extends Component {
     return (
       <div>
         <h3 className="text-center">Questions</h3>
+        <p>
+          Trying to solve a problem provided by the <Button outline color="warning" disabled size="sm">Trial Set</Button> button <strong className="text-success">will not</strong> impact your submissions
+          <br/>
+          <br/>
+          Trying to solve a problem provided by the <Button outline color="success" disabled size="sm">Submission Set</Button> button <strong className="text-danger">will</strong> impact your submissions
+        </p>
         <Row>
           {
             questions && questions.map(question => (
@@ -126,8 +132,8 @@ class App extends Component {
                       )
                     }
                     <div>
-                      <Button className="float-left" onClick={this.getSmallTestSet(question.name)}>Trial Set</Button>
-                      <Button className="float-right" onClick={this.getLargeTestSet(question.name)}>Submission Set</Button>
+                      <Button outline color="warning" className="float-left" onClick={this.getSmallTestSet(question.name)}>Trial Set</Button>
+                      <Button outline color="success" className="float-right" onClick={this.getLargeTestSet(question.name)}>Submission Set</Button>
                     </div>
                     {
                       questionsAttempted[question.name] && (  
