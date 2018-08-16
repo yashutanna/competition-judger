@@ -109,8 +109,7 @@ public class SubmissionService {
 
     private boolean answersAreCorrect(MultipartFile file, Submission submission) throws IOException {
         HashMap<String, String> userSubmission = getSubmittedTest(file);
-        Boolean answersAreCorrect = answersAreCorrect(submission, userSubmission);
-        return !answersAreCorrect;
+        return answersAreCorrect(submission, userSubmission);
     }
     private boolean answersAreCorrect(MultipartFile file) throws IOException {
         HashMap<String, String> userSubmission = getSubmittedTest(file);
