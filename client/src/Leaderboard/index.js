@@ -3,9 +3,6 @@ import './styles.css';
 import { Table } from 'reactstrap';
 import { withCookies } from 'react-cookie';
 import { withRouter } from 'react-router-dom';
-import { startCase } from 'lodash';
-import moment from 'moment';
-import Countdown from 'react-countdown-now';
 
 const questionSorter = (a, b) => {
   if (a.name < b.name) {
@@ -74,7 +71,7 @@ class App extends Component {
                 {
                   leaderboard.map((standing) => (
                     <tr>
-                      <td scope="row">{standing.university}</td>
+                      <td>{standing.university}</td>
                       {
                         questions.sort(questionSorter).map(question => (
                           <td className="text-center">{standing.submissions[question.name] === true ? 'PASS' : standing.submissions[question.name] === false ? 'FAIL' : ''}</td>

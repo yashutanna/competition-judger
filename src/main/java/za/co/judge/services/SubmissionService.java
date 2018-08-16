@@ -78,6 +78,7 @@ public class SubmissionService {
         }
 
         if (isNotNewestSubmission(teamName, submissionId)){
+            //TODO add log here of possibly malicious behaviour
             submissionResponse.setMessage("You are attempting to submit an answer for an old test set - Please start with a new test set");
             return submissionResponse;
         }

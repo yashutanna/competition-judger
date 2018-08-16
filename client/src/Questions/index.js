@@ -126,8 +126,8 @@ class App extends Component {
                       )
                     }
                     <div>
-                      <Button className="float-left" onClick={this.getSmallTestSet(question.name)}>Small Test Set</Button>
-                      <Button className="float-right" onClick={this.getLargeTestSet(question.name)}>Large Test Set</Button>
+                      <Button className="float-left" onClick={this.getSmallTestSet(question.name)}>Trial Set</Button>
+                      <Button className="float-right" onClick={this.getLargeTestSet(question.name)}>Submission Set</Button>
                     </div>
                     {
                       questionsAttempted[question.name] && (  
