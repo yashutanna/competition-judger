@@ -10,6 +10,7 @@ import za.co.judge.domain.Submission;
 import za.co.judge.services.ScoringService;
 import za.co.judge.services.SubmissionService;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.Principal;
 import java.sql.Date;
@@ -27,7 +28,10 @@ public class SubmissionController {
     @PostMapping(value = "")
     public Submission submit(@RequestParam("file") MultipartFile file, Principal principal) throws IOException {
         Long submissionTime = Date.from(Instant.now()).getTime();
-        return submissionService.checkSubmission(file, principal.getName(), submissionTime);
+        Submission storedSubmission = submissionService.checkSubmission(file, principal.getName(), submissionTime);
+        String filePath = System.getProperty("user.dir") + "/" + principal.getName() + "_" + submissionTime.toString();
+        file.transferTo(new File(filePath));
+        return storedSubmission;
     }
     
 }
