@@ -99,7 +99,7 @@ public class SubmissionService {
 
         updateSubmission(submission, submissionTime, true);
         submissionResponse.setMessage("Congratulations - you have successfully completed this question");
-        Integer allocatablePoints = MAX_POINTS_PER_QUESTION - questionService.countNumberOfSubmissionsForQuestion(questionName);
+        Integer allocatablePoints = MAX_POINTS_PER_QUESTION - questionService.countNumberOfSubmissionsForQuestion(questionName) + 1;
         Submission updatedSubmission = updateSubmission(submission, submissionTime, true);
 
         Long submittersId = teamRepository.findByName(teamName);
