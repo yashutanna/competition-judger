@@ -34,7 +34,7 @@ class App extends Component {
 
   componentWillMount() {
     const token = this.props.cookies.get('token');
-    fetchAuthenticated('http://localhost:8080/questions/', token)
+    fetchAuthenticated('http://52.157.232.213:8080/questions/', token)
     .then((res) => res.json())
     .then((questions) => {
       console.log(questions)
@@ -55,7 +55,7 @@ class App extends Component {
   uploadFile = (questionName) => () => {
     const { fileToUpload } = this.state;
     const token = this.props.cookies.get('token');
-    fetch('http://localhost:8080/submissions/', {
+    fetch('http://52.157.232.213:8080/submissions/', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -76,7 +76,7 @@ class App extends Component {
 
   getSmallTestSet = (questionName) => () => {
     const token = this.props.cookies.get('token');
-    fetchAuthenticated(`http://localhost:8080/questions/${questionName}/small-set`, token)
+    fetchAuthenticated(`http://52.157.232.213:8080/questions/${questionName}/small-set`, token)
     .then((res) => res.text())
     .then((questions) => {
       fileDownload(questions, `${questionName}_small_${moment().valueOf()}`)
@@ -90,7 +90,7 @@ class App extends Component {
 
   getLargeTestSet = (questionName) => () => {
     const token = this.props.cookies.get('token');
-    fetchAuthenticated(`http://localhost:8080/questions/${questionName}/large-set`, token)
+    fetchAuthenticated(`http://52.157.232.213:8080/questions/${questionName}/large-set`, token)
     .then((res) => res.text())
     .then((questions) => {
       fileDownload(questions, `${questionName}_large_${moment().valueOf()}`)

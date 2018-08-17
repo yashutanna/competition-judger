@@ -13,7 +13,7 @@ class App extends Component {
   }
 
   login() {
-    fetch('http://localhost:8080/user/login', {
+    fetch('http://52.157.232.213:8080/user/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

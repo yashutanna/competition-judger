@@ -40,7 +40,7 @@ class App extends Component {
 
   loadLeaderboard() {
     const token = this.props.cookies.get('token');
-    const getStandings = () => fetchAuthenticated('http://localhost:8080/leaderboard/', token)
+    const getStandings = () => fetchAuthenticated('http://52.157.232.213:8080/leaderboard/', token)
     .then((res) => res.json())
     .then((leaderboard) => {
       this.setState({
@@ -49,7 +49,7 @@ class App extends Component {
     });
 
     getStandings();
-    fetchAuthenticated('http://localhost:8080/questions/', token)
+    fetchAuthenticated('http://52.157.232.213:8080/questions/', token)
     .then((res) => res.json())
     .then((questions) => {
       this.setState({
