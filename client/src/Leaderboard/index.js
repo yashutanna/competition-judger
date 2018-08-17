@@ -86,7 +86,7 @@ class App extends Component {
                 {
                   leaderboard.map((standing) => (
                     <tr>
-                      <td>{standing.university}</td>
+                      <td>{standing.university} <strong>({standing.score}</strong>)</td>
                       {
                         questions.sort(questionSorter).map(question => (
                           standing.submissions[question.name] === true ? tick : standing.submissions[question.name] === false ? cross : ''
