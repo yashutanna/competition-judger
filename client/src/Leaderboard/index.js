@@ -59,7 +59,7 @@ class App extends Component {
   }
 
   componentDidMount(){
-    setTimeout(this.loadLeaderboard(), 5000);
+    setTimeout(this.loadLeaderboard, 5000);
   }
 
   render() {
