@@ -20,7 +20,8 @@ const fetchAuthenticated = (url, token, method, body) =>
     method: method || 'GET',
     headers: {
       'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': "*"
     },
     body,
   })

@@ -16,7 +16,8 @@ class App extends Component {
     fetch('http://localhost:8080/user/login', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': "*"
       },
       body: JSON.stringify(this.state)
     })
