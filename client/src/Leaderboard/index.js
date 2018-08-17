@@ -3,6 +3,7 @@ import './styles.css';
 import { Table } from 'reactstrap';
 import { withCookies } from 'react-cookie';
 import { withRouter } from 'react-router-dom';
+import { startCase } from 'lodash';
 
 const questionSorter = (a, b) => {
   if (a.name < b.name) {
@@ -28,18 +29,21 @@ class App extends Component {
   constructor(){
     super();
     this.state = {
-    }
+    };
+    setTimeout(() => getStandings(), 5000);
   }
 
   componentWillMount() {
     const token = this.props.cookies.get('token');
-    fetchAuthenticated('http://localhost:8080/leaderboard/', token)
+    const getStandings = () => fetchAuthenticated('http://localhost:8080/leaderboard/', token)
     .then((res) => res.json())
     .then((leaderboard) => {
       this.setState({
         leaderboard,
       })
     });
+
+    getStandings();
     fetchAuthenticated('http://localhost:8080/questions/', token)
     .then((res) => res.json())
     .then((questions) => {
@@ -50,6 +54,8 @@ class App extends Component {
   }
 
   render() {
+  const tick = (<td className="text-center bg-green"><strong>&#10004;</strong></td>);
+  const cross = (<td className="text-center bg-red"><strong>&#10005;</strong></td>);
     const { leaderboard, questions } = this.state;
     return (
       <div>
@@ -62,7 +68,7 @@ class App extends Component {
                   <th>University</th>
                   {
                     questions.sort(questionSorter).map(question => (
-                      <th className="text-center">{question.name}</th>
+                      <th className="text-center">{startCase(question.name)}</th>
                     ))
                   }
                 </tr>
@@ -74,7 +80,7 @@ class App extends Component {
                       <td>{standing.university}</td>
                       {
                         questions.sort(questionSorter).map(question => (
-                          <td className="text-center">{standing.submissions[question.name] === true ? 'PASS' : standing.submissions[question.name] === false ? 'FAIL' : ''}</td>
+                          standing.submissions[question.name] === true ? tick : standing.submissions[question.name] === false ? cross : ''
                         ))
                       }
                     </tr>

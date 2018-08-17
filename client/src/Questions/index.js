@@ -106,10 +106,10 @@ class App extends Component {
       <div>
         <h3 className="text-center">Questions</h3>
         <p>
-          Trying to solve a problem provided by the <Button outline color="warning" disabled size="sm">Trial Set</Button> button <strong className="text-success">will not</strong> impact your submissions
+          Trying to solve a problem provided by the <Button outline disabled size="sm">Trial Set</Button> button <strong className="text-success">will not</strong> impact your submissions
           <br/>
           <br/>
-          Trying to solve a problem provided by the <Button outline color="success" disabled size="sm">Submission Set</Button> button <strong className="text-danger">will</strong> impact your submissions
+          Trying to solve a problem provided by the <Button outline disabled size="sm">Submission Set</Button> button <strong className="text-danger">will</strong> impact your submissions
         </p>
         <Row>
           {
