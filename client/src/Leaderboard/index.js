@@ -29,11 +29,15 @@ class App extends Component {
   constructor(){
     super();
     this.state = {
-    };
-    setTimeout(() => getStandings(), 5000);
+    }
+    this.loadLeaderboard = this.loadLeaderboard.bind(this);
   }
 
   componentWillMount() {
+    this.loadLeaderboard();
+  }
+
+  loadLeaderboard() {
     const token = this.props.cookies.get('token');
     const getStandings = () => fetchAuthenticated('http://localhost:8080/leaderboard/', token)
     .then((res) => res.json())
@@ -53,9 +57,13 @@ class App extends Component {
     });
   }
 
+  componentDidMount(){
+    setTimeout(this.loadLeaderboard(), 5000);
+  }
+
   render() {
-  const tick = (<td className="text-center bg-green"><strong>&#10004;</strong></td>);
-  const cross = (<td className="text-center bg-red"><strong>&#10005;</strong></td>);
+    const tick = (<td className="text-center bg-green"><strong>&#10004;</strong></td>);
+    const cross = (<td className="text-center bg-red"><strong>&#10005;</strong></td>);
     const { leaderboard, questions } = this.state;
     return (
       <div>
